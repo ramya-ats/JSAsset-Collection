@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Asset Request Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .error-message {
+      color: red;
+      font-size: 0.85rem;
+      margin-top: 4px;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="main-heading">Asset Request Portal</h1>
+    <div class="form-container">
+      <form class="box-container" id="employeeForm">
+
+        <!-- Employee Name -->
+        <div class="form-group">
+          <label for="employeeName">Employee Name</label>
+          <input type="text" id="employeeName" name="employeeName" placeholder="Enter employee name" />
+          <span class="error-message" id="error-message"></span>
+        </div>
+
+        <!-- Employee ID -->
+        <div class="form-group" style="position: relative; max-width: 220px;">
+          <label for="employeeId">Employee ID</label>
+          <input type="text" id="employeeId" class="employeeId" name="employeeId" placeholder="Enter employee ID" />
+          <span class="error-message" id="employeeId-error"></span>
+        </div>
+
+        <!-- Asset Name -->
+        <div class="form-group">
+          <label for="assetName">Asset Name</label>
+          <input type="text" id="assetName" placeholder="Asset name" />
+        </div>
+
+        <!-- Asset Type -->
+        <div class="form-group">
+          <label for="assetType">Asset Type</label>
+          <select id="assetType">
+            <option value="">-- Select Leave Type</option>
+            <option>Laptop</option>
+            <option>Desktop</option>
+            <option>Keyboard</option>
+            <option>Mouse</option>
+          </select>
+          <span class="error-message" id="assetType-error"></span>
+        </div>
+
+        <!-- Reason -->
+        <div class="form-group">
+          <label for="reason">Reason for Request</label>
+          <textarea id="reason" placeholder="Reason for the leave" rows="4"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-group">
+          <button type="submit">Submit Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>

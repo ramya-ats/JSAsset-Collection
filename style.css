@@ -1,0 +1,282 @@
+body {
+    font-family: Arial, sans-serif;
+    
+}
+
+.container {
+    
+    background-color: #2d3a8c;
+    height: fit-content;
+    padding: 20px;
+    margin: 0px;
+} 
+
+.main-heading {
+    font-size: 28px;
+    color: white;
+    text-align: center;
+
+}
+
+
+.form-container {
+    background-color: white;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    display:flex;
+    justify-content: center;
+}
+
+
+
+.box-container {
+    background-color: #f5f7fa;
+    border-radius: 15px;
+    border-style: solid;
+    padding: 20px;
+    margin: 18px;
+    border-color: #e4e7eb;
+    border-width: 1px;
+    width: 600px;
+    min-height: 600px;
+}
+
+
+
+input, textarea {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 550px;
+}
+
+#reason {
+    resize: none;
+}
+
+
+select {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 565px; 
+}
+
+
+button {
+    cursor: pointer;
+    color: white;
+    background-color: #2d3a8c;
+    border-radius: 8px;
+    padding: 10px 20px;
+}
+
+
+
+/** hr  **/
+
+.container2 {
+    /* padding: 30px;
+    margin: 10px; */
+    /* max-width: 900px; */
+    margin: auto;
+    background: #fff;
+    /* padding: 25px; */
+    border-radius: 8px;
+    /* width: 100%;
+    max-width: 100%; */
+}
+
+h1 {
+    text-align: center;
+    background-color: #2d3a8c;
+    color: white;
+}
+
+.summary-boxes {
+    
+    padding: 10px 0 20px 0;
+    display: flex;
+    justify-content: space-between;
+    /* margin: 20px; */
+}
+
+.box {
+    flex: 1;
+    margin: 0 10px;
+    background-color: #e9ecef;
+    padding: 20px;
+    border-radius: 7px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.details-container {
+    background-color: #e9ecef;
+    border-radius: 7px;
+    padding: 20px;
+}
+.box span {
+    display: block;
+    margin-top: 10px;
+    
+}
+
+.search-filter {
+    
+    width: 100%;
+    display: flex;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.search-filter input { 
+    border: 2px solid black; 
+    padding: 8px; 
+    flex: 2; 
+} 
+.search-filter select { 
+    border: 2px solid black; 
+    padding: 8px; 
+    flex: 1; 
+}
+
+.clear-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+
+}
+
+.no-data {
+    text-align: center;
+    color: #999;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    padding: 20px;
+    width: 400px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-btn:hover {
+    color: #000;
+}
+
+
+  
+
+/* Show error message when input is invalid */
+input:invalid + .error-message {
+  display: block;
+}
+
+.heading{
+    padding:20px;
+    border-radius: 10px;
+}
+.search-filter {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-input {
+    flex: 3;
+    max-width: 70%; 
+    padding: 8px;
+}
+
+.status-select {
+    flex: 1;
+    max-width: 150px;   
+    padding: 6px;
+}
+
+.clear-btn {
+    padding: 6px 12px;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9em;
+  margin-top: 4px;
+  display: block;
+}
+
+
+
+@media (max-width: 1024px) {
+    .box {
+        flex: 1 1 45%;
+    }
+}
+
+@media (max-width: 768px) {
+    .box {
+        flex: 1 1 100%;
+    }
+
+    .form-container, .details-container {
+        padding: 15px;
+    }
+
+    .search-filter {
+        flex-direction: column;
+    }
+
+    .search-input, .status-select, .clear-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 22px;
+        padding: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
