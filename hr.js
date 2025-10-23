@@ -4,26 +4,41 @@ document.addEventListener('DOMContentLoaded', function () {
   const statusFilter = document.getElementById('statusFilter');
   const clearBtn = document.querySelector('.clear-btn');
 
-  let requests = JSON.parse(localStorage.getItem('assetRequests')) || [];
+  let requests = [];
 
+  // Fetch all requests from backend
+  async function fetchRequests() {
+    try {
+      console.log("Fetching requests...");
+      const res = await fetch('http://localhost:3000/api/requests');
+      if (!res.ok) throw new Error('Failed to fetch requests');
+      requests = await res.json();
+      console.log("Fetched data:", requests);
+      renderTable(requests);
+    } catch (err) {
+      console.error('Error fetching requests:', err);
+      tableBody.innerHTML = `<tr><td colspan="4" class="no-data">Failed to load requests</td></tr>`;
+    }
+  }
+
+  // Render table
   function renderTable(data) {
     tableBody.innerHTML = '';
 
     if (data.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="4" class="no-data">No Requests Found</td></tr>`;
+      updateSummary(data);
       return;
     }
 
-    data.forEach((req, index) => {
+    data.forEach(req => {
       const row = document.createElement('tr');
 
       row.innerHTML = `
         <td>${req.employeeId}</td>
         <td>${req.employeeName}</td>
         <td>${req.status}</td>
-        <td>
-          <button onclick="viewDetails(${index})">View</button>
-        </td>
+        <td><button onclick="viewDetails(${req.id})">View</button></td>
       `;
 
       tableBody.appendChild(row);
@@ -32,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateSummary(data);
   }
 
+  // Update summary boxes
   function updateSummary(data) {
     const total = data.length;
     const pending = data.filter(r => r.status === 'Pending').length;
@@ -44,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.box span')[3].textContent = rejected;
   }
 
-
+  // Filter table based on input and dropdown
   function filterTable() {
     const query = searchInput.value.toLowerCase();
     const status = statusFilter.value;
@@ -62,90 +78,122 @@ document.addEventListener('DOMContentLoaded', function () {
     renderTable(filtered);
   }
 
-  // Clear records
-  clearBtn.addEventListener('click', function () {
+  // Clear all records from backend
+  clearBtn.addEventListener('click', async () => {
     if (confirm("Are you sure you want to clear all records?")) {
-      localStorage.removeItem('assetRequests');
-      requests = [];
-      renderTable([]);
+      try {
+        const res = await fetch('http://localhost:3000/api/requests', { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok) {
+          requests = [];
+          renderTable(requests);
+          alert(data.message);
+        } else {
+          alert(data.error || 'Failed to clear records');
+        }
+      } catch (err) {
+        console.error('Error clearing records:', err);
+        alert('Error clearing records');
+      }
     }
   });
 
+  // Search and filter events
   searchInput.addEventListener('input', filterTable);
   statusFilter.addEventListener('change', filterTable);
 
-  window.viewDetails = function (index) {
-  const modal = document.getElementById('employeeModal');
-  const modalDetails = document.getElementById('modalDetails');
-  const approveBtn = document.getElementById('approveBtn');
-  const rejectBtn = document.getElementById('rejectBtn');
-  const request = requests[index];
+  // View details in modal
+  window.viewDetails = function (id) {
+    const modal = document.getElementById('employeeModal');
+    const modalDetails = document.getElementById('modalDetails');
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
 
-  // Initial modal content
-  modalDetails.innerHTML = `
-    <p><strong>Employee Name:</strong> ${request.employeeName}</p>
-    <p><strong>Employee ID:</strong> ${request.employeeId}</p>
-    <p><strong>Asset Name:</strong> ${request.assetName}</p>
-    <p><strong>Asset Type:</strong> ${request.assetType}</p>
-    <p><strong>Reason:</strong> ${request.reason}</p>
-    <p><strong>Status:</strong> 
-      <span id="statusText" style="color: ${getStatusColor(request.status)}; font-size: 18px;">
-        ${request.status}
-      </span>
-    </p>
-  `;
+    const request = requests.find(r => r.id === id);
+    if (!request) return alert('Request not found');
 
-  const statusText = document.getElementById('statusText');
+    modalDetails.innerHTML = `
+      <p><strong>Employee Name:</strong> ${request.employeeName}</p>
+      <p><strong>Employee ID:</strong> ${request.employeeId}</p>
+      <p><strong>Job Role:</strong> ${request.jobRole}</p>
+      <p><strong>Asset Type:</strong> ${request.assetType}</p>
+      <p><strong>Start Date:</strong> ${request.startDate}</p>
+      <p><strong>Reason:</strong> ${request.reason}</p>
+      <p><strong>Status:</strong> 
+        <span id="statusText" style="color: ${getStatusColor(request.status)}; font-size: 18px;">
+          ${request.status}
+        </span>
+      </p>
+    `;
 
-  if (request.status === "Pending") {
-    approveBtn.disabled = false;
-    rejectBtn.disabled = false;
+    const statusText = document.getElementById('statusText');
 
-    approveBtn.style.display = "inline-block";
-    rejectBtn.style.display = "inline-block";
+    if (request.status === "Pending") {
+      approveBtn.style.display = "inline-block";
+      rejectBtn.style.display = "inline-block";
+      approveBtn.disabled = false;
+      rejectBtn.disabled = false;
 
-    approveBtn.onclick = function () {
-      requests[index].status = 'Approved';
-      localStorage.setItem('assetRequests', JSON.stringify(requests));
+      approveBtn.onclick = async () => {
+        approveBtn.disabled = true;
+        rejectBtn.disabled = true;
+        await updateStatus(id, 'Approved');
+        statusText.textContent = 'Approved';
+        statusText.style.color = 'green';
+      };
 
-      // Update modal status text and color
-      statusText.textContent = 'Approved';
-      statusText.style.color = 'green';
+      rejectBtn.onclick = async () => {
+        approveBtn.disabled = true;
+        rejectBtn.disabled = true;
+        await updateStatus(id, 'Rejected');
+        statusText.textContent = 'Rejected';
+        statusText.style.color = 'red';
+      };
+    } else {
+      approveBtn.style.display = "none";
+      rejectBtn.style.display = "none";
+    }
 
-      renderTable(requests);
-      // Optionally keep modal open to show status update
-    };
+    modal.style.display = 'flex';
+  };
 
-    rejectBtn.onclick = function () {
-      requests[index].status = 'Rejected';
-      localStorage.setItem('assetRequests', JSON.stringify(requests));
-
-      // Update modal status text and color
-      statusText.textContent = 'Rejected';
-      statusText.style.color = 'red';
-      
-
-      renderTable(requests);
-    };
-  } else {
-    approveBtn.style.display = "none";
-    rejectBtn.style.display = "none";
+  // Update status in backend
+  async function updateStatus(id, newStatus) {
+    try {
+      const res = await fetch(`http://localhost:3000/api/requests/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const reqIndex = requests.findIndex(r => r.id === id);
+        if (reqIndex !== -1) {
+          requests[reqIndex].status = newStatus;
+          renderTable(requests);
+        }
+        alert(data.message);
+      } else {
+        alert(data.error || 'Failed to update status');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      alert('Error updating status');
+    }
   }
 
-  modal.style.display = 'flex';
-};
+  // Status color helper
+  function getStatusColor(status) {
+    if (status === 'Approved') return 'green';
+    if (status === 'Rejected') return 'red';
+    return 'black';
+  }
 
-// Helper to determine color based on status
-function getStatusColor(status) {
-  if (status === 'Approved') return 'green';
-  if (status === 'Rejected') return 'red';
-  return 'black';
-}
+  // Close modal
+  window.closeModal = function () {
+    document.getElementById('employeeModal').style.display = 'none';
+  };
 
-window.closeModal = function () {
-  document.getElementById('employeeModal').style.display = 'none';
-};
-
-
-  renderTable(requests);
+  // Initial fetch
+  fetchRequests();
 });

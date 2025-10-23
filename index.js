@@ -3,8 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const employeeNameInput = document.getElementById('employeeName');
   const employeeIdInput = document.getElementById('employeeId');
+  const jobRoleInput = document.getElementById('jobRole');
   const assetNameInput = document.getElementById('assetName');
   const assetTypeInput = document.getElementById('assetType');
+  const startDateInput = document.getElementById('startDate');
   const reasonInput = document.getElementById('reason');
 
   const nameError = document.getElementById('error-message');
@@ -41,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (!nameRegex.test(value)) {
       nameError.textContent = "Only alphabets and spaces allowed.";
     } else if (trimmed.length < 5) {
-      nameError.textContent = "Name must contain atleast 5 characters.";
+      nameError.textContent = "Name must contain at least 5 characters.";
     } else {
       nameError.textContent = "";
     }
@@ -147,9 +149,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const employeeName = employeeNameInput.value.trim();
     const employeeId = employeeIdInput.value.trim();
-    const assetName = assetNameInput.value.trim();
+    const assetName = assetNameInput.value.trim(); // This maps to jobRole
     const assetType = assetTypeInput.value;
-    const reason = reasonInput.value;
+    const reason = reasonInput.value.trim();
+    const jobRole = assetName; // Using assetName as jobRole (since HTML still has "Asset Name" field)
+    const startDate = startDateInput.value;
+
     const totalLength = reason.length;
     const nonSpaceLength = reason.replace(/\s/g, '').length;
 
@@ -169,15 +174,15 @@ document.addEventListener('DOMContentLoaded', () => {
       idError.textContent = "";
     }
 
-    if (assetName.length < 5 || assetName.length > 30 || !assetRegex.test(assetName)) {
-      assetError.textContent = "Asset name must be 5 – 30 characters, letters/numbers/spaces only.";
+    if (jobRole.length < 5 || jobRole.length > 30 || !assetRegex.test(jobRole)) {
+      assetError.textContent = "Job role must be 5 – 30 characters, letters/numbers/spaces only.";
       valid = false;
     } else {
       assetError.textContent = "";
     }
 
     if (totalLength === 0 || nonSpaceLength < 5) {
-      reasonError.textContent = "Must be at least characters.";
+      reasonError.textContent = "Reason must be at least 5 characters.";
       valid = false;
     } else if (totalLength > 300) {
       reasonError.textContent = "Cannot exceed 300 total characters.";
@@ -193,29 +198,42 @@ document.addEventListener('DOMContentLoaded', () => {
       assetTypeError.textContent = "";
     }
 
+    if (!startDate) {
+      alert("Start date is required.");
+      valid = false;
+    }
+
     if (!valid) return;
 
     const request = {
       employeeName,
       employeeId,
-      assetName,
+      jobRole,
       assetType,
-      reason,
-      status: "Pending",
-      requestDate: new Date().toLocaleDateString()
+      startDate,
+      reason
     };
 
-    let requests = JSON.parse(localStorage.getItem('assetRequests')) || [];
-    requests.push(request);
-    localStorage.setItem('assetRequests', JSON.stringify(requests));
-
-    alert("Request submitted successfully!");
-    this.reset();
-
-    nameError.textContent = "";
-    idError.textContent = "";
-    assetError.textContent = "";
-    reasonError.textContent = "";
-    assetTypeError.textContent = "";
+    fetch('http://localhost:3000/api/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(request)
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      employeeForm.reset();
+      nameError.textContent = "";
+      idError.textContent = "";
+      assetError.textContent = "";
+      reasonError.textContent = "";
+      assetTypeError.textContent = "";
+    })
+    .catch(err => {
+      console.error("Submission error:", err);
+      alert("Failed to submit request.");
+    });
   });
 });
